@@ -1,46 +1,35 @@
-#include "libft_printf.h"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ft_put_nbr.c                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: aid-bray <aid-bray@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/12/10 06:08:44 by aid-bray          #+#    #+#             */
+/*   Updated: 2024/12/12 11:13:30 by aid-bray         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-int	ft_put_nbrbase(size_t nbr, int base, char x)
-{
-	char	*str;
-	char	tab[21];
-	int		i;
-	int		count;
-
-	i = 0;
-	if (x == 'X')
-		str = "0123456789ABCDEF";
-	else
-		str = "0123456789abcdef";
-	while (nbr)
-	{
-		tab[i++] = str[nbr % base];
-		nbr /= base;
-	}
-	count = i;
-	while (i-- > 0)
-		write (1, &tab[i], 1);
-	return (count);
-}
-
+#include "ft_printf.h"
 
 int	count_digit(size_t nbr, int base)
 {
 	int	i;
 
+	if (!nbr)
+		return (1);
 	i = 0;
 	while (nbr)
 	{
-		i++;
 		nbr /= base;
+		i++;
 	}
 	return (i);
 }
 
-
-int	put_flags(char c, int len)
+int	put_spacezero(char c, int len)
 {
-	int i;
+	int	i;
 
 	i = 0;
 	while (i < len)
@@ -51,47 +40,47 @@ int	put_flags(char c, int len)
 	return (i);
 }
 
-int	treat_flags(int nbr, int n_digit, flags flag, int len)
+int	put_flag_char(t_flags flag, t_infonbr info)
 {
-	int	count;
-	int	space;
-	int	zero;
-
-	if (!flag.n_space && flag.n_zero && !nbr)
-		zero = 1;
-	else if (flag.n_zero > n_digit)
-		zero = flag.n_zero;
-	else
-		zero = n_digit;
-	if (flag.n_space <= 0 && !nbr)
-		space = 0;
-	else
-		space = flag.n_space;
-	count = put_flags(' ', space - zero - len);
-	if (flag.c_flag)
-		count += write (1, &flag.c_flag, 1);
-	count += put_flags('0', zero - n_digit);
-	return (count);
+	if (info.sign)
+		return (write (1, "-", 1));
+	else if (flag.c_plus)
+		return (write (1, "+", 1));
+	else if (flag.c_space)
+		return (write (1, " ", 1));
+	else if (flag.c_hash && info.nbr)
+		return (write (1, "0", 1) + write (1, &info.x, 1));
+	return (0);
 }
 
-int	ft_putnbr(int nbr, flags flag)
-{
-	unsigned int	n;
-	int				i;
-	int				n_digit;
 
+int	ft_putnbr(int nbr, t_flags flag)
+{
+	int				i;
+	t_infonbr		info;
+
+	info.base = 10;
+	info.x = 'a';
+	if ((flag.c_plus && flag.c_space)
+		|| (flag.c_hash && (flag.c_plus || flag.c_space)))
+		return (-1);
 	i = 0;
-	n = nbr;
+	info.nbr = nbr;
+	info.sign = 0;
+	info.count = 0;
 	if (nbr < 0)
 	{
-		n = -nbr;
-		flag.c_flag = '-';
-		i++;
+		info.nbr = -nbr;
+		info.sign = 1;
+		info.count = 1;
 	}
-	if (flag.c_flag && nbr >= 0)
-		i++;
-	n_digit = count_digit(n, 10);
-	i = treat_flags(nbr, n_digit, flag, i);
-	i += ft_put_nbrbase(n, 10, flag.c_flag);
+	if ((flag.c_plus || flag.c_space) && !info.count)
+		info.count = 1;
+	if (flag.c_zero && !flag.c_dash && flag.n_zero > 0 && info.sign)
+		flag.n_zero--;
+	if (nbr)
+		i += treat_flags(flag, info);
+	else
+		i += treat_nbr_zero(flag, info);
 	return (i);
 }
