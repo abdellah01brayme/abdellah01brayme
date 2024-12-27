@@ -1,24 +1,28 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   ft_put_char.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: aid-bray <aid-bray@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/12/10 06:09:19 by aid-bray          #+#    #+#             */
-/*   Updated: 2024/12/12 11:09:05 by aid-bray         ###   ########.fr       */
+/*   Created: 2024/12/10 06:08:40 by aid-bray          #+#    #+#             */
+/*   Updated: 2024/12/18 14:28:03 by aid-bray         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_printf.h"
 
-// int main()
-// {
-//       // char *p = "NULL";
-//     int n = -48982;
-//     //  int i2 =   printf("our:010d|",n);printf("\n");
-//      int i1 =    printf("%98d|", n);printf("\n");
-//      int i2 = ft_printf("%98d|", n);printf("\n");
-//      printf("%d\t",i1);
-//     printf("%d\n",i2);
-// }
+int	ft_putchar(char c, t_flags flag)
+{
+	int	i;
+
+	i = 0;
+	if (flag.c_zero && !flag.c_dash)
+		flag.n_space = flag.n_zero;
+	if (!flag.c_minus)
+		i += put_spacezero(' ', flag.n_space - 1);
+	i += write(1, &c, 1);
+	if (flag.c_minus)
+		i += put_spacezero(' ', flag.n_space - 1);
+	return (i);
+}
